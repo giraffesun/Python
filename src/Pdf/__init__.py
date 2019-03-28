@@ -23,7 +23,7 @@ def readPdf(pdf_file):
 
 
 url = "http://www.pythonscraping.com/pages/warandpeace/chapter1.pdf"
-pdf_file = open(r'D:\Users\sunpj\Desktop\2.pdf','rb') # 也可以换成本地pdf文件，用open rb模式打开
+pdf_file = open(r'D:\Users\sunpj\Desktop\1.pdf','rb') # 也可以换成本地pdf文件，用open rb模式打开
 content = readPdf(pdf_file)
 print(content)
 pdf_file.close()
