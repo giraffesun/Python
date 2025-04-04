@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pygame
 import random
 
@@ -123,38 +124,40 @@ class Figure:
 
 def main():
     pygame.init()
-    
+
     # 定义常量
     CELL_SIZE = 30
     FIELD_WIDTH = 10
     FIELD_HEIGHT = 20
-    SCORE_HEIGHT = 50  # 新增得分显示区域的高度
-    GAME_RES = FIELD_WIDTH * CELL_SIZE, FIELD_HEIGHT * CELL_SIZE + SCORE_HEIGHT  # 修改游戏窗口大小
+    SCORE_HEIGHT = 50
+    GAME_RES = FIELD_WIDTH * CELL_SIZE, FIELD_HEIGHT * CELL_SIZE + SCORE_HEIGHT
     FPS = 60
-    
-    # 设置字体
-    pygame.font.init()
-    font = pygame.font.SysFont('Arial', 30)
-    
+
+    # 使用系统默认中文字体
+    font = pygame.font.SysFont('simhei', 30, bold=False, italic=False)
+    if font is None:
+        print("无法获取系统默认中文字体，将使用通用默认字体。")
+        font = pygame.font.Font(None, 30)
+
     screen = pygame.display.set_mode(GAME_RES)
     pygame.display.set_caption("俄罗斯方块")
     clock = pygame.time.Clock()
     game = Tetris(FIELD_HEIGHT, FIELD_WIDTH)
     counter = 0
-    
+
     pressing_down = False
-    
+
     while True:
         if game.figure is None:
             game.new_figure()
         counter += 1
         if counter > 100000:
             counter = 0
-            
+
         if counter % (FPS // 3) == 0 or pressing_down:
             if game.state == "start":
                 game.go_down()
-                
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -176,36 +179,45 @@ def main():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_DOWN:
                     pressing_down = False
-                    
+
         screen.fill(COLORS[0])
-        
+
         # 绘制得分
         score_text = font.render(f'得分: {game.score}', True, (255, 255, 255))
         screen.blit(score_text, [10, 10])
-        
+
         # 绘制游戏区域（向下偏移SCORE_HEIGHT像素）
         for i in range(game.height):
             for j in range(game.width):
                 pygame.draw.rect(screen, COLORS[game.field[i][j]],
-                               [j*CELL_SIZE, i*CELL_SIZE + SCORE_HEIGHT, CELL_SIZE, CELL_SIZE], 0)
-                
+                                 [j * CELL_SIZE, i * CELL_SIZE + SCORE_HEIGHT, CELL_SIZE, CELL_SIZE], 0)
+
         if game.figure is not None:
             for i in range(4):
                 for j in range(4):
                     p = i * 4 + j
                     if p in game.figure.image():
                         pygame.draw.rect(screen, COLORS[game.figure.color],
-                                       [(j + game.figure.x) * CELL_SIZE,
-                                        (i + game.figure.y) * CELL_SIZE + SCORE_HEIGHT,
-                                        CELL_SIZE, CELL_SIZE], 0)
-        
+                                         [(j + game.figure.x) * CELL_SIZE,
+                                          (i + game.figure.y) * CELL_SIZE + SCORE_HEIGHT,
+                                          CELL_SIZE, CELL_SIZE], 0)
+
         pygame.display.flip()
         clock.tick(FPS)
-        
+
         if game.state == "gameover":
-            print(f"游戏结束！得分：{game.score}")
-            pygame.quit()
-            return
+            # 显示游戏结束得分信息
+            game_over_text = font.render(f"游戏结束！得分：{game.score}", True, (255, 255, 255))
+            screen.fill(COLORS[0])
+            screen.blit(game_over_text, (GAME_RES[0] // 2 - game_over_text.get_width() // 2,
+                                         GAME_RES[1] // 2 - game_over_text.get_height() // 2))
+            pygame.display.flip()
+            # 等待用户关闭窗口
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        return
 
 if __name__ == "__main__":
-    main() 
+    main()
